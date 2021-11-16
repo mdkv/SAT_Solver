@@ -37,7 +37,6 @@ def read_sudoku(path):
 
     return given_sudoku
 
-
 def create_dict(constraints):
 
     variables = dict()
@@ -56,7 +55,6 @@ def remove_redundant(cnf, literal):
     i = 0
     while i < len(new_cnf):
 
-
         if literal in new_cnf[i]: #If there is an exact match, the clause is True, so remove it
             del new_cnf[i]
 
@@ -70,7 +68,6 @@ def remove_redundant(cnf, literal):
 
 
 def set_unit_clauses(cnf, variables):
-    print("here at unit")
 
     i = 0 #to do check if i = 0  in one of the if statements can be removed
     while i < len(cnf):
@@ -87,7 +84,6 @@ def set_unit_clauses(cnf, variables):
                 i =0
 
         i+=1
-
 
 
     return cnf, variables
@@ -114,14 +110,12 @@ def check_satisfiable(cnf):
 
 
 def dpll(cnf, variables):
-    print("here")
 
     current_variables = deepcopy(variables)  # Copy the variables, so previous don't get changed
 
-    new_cnf, current_variables = set_unit_clauses(cnf, current_variables)  # Check for unit clauses
+    cnf, current_variables = set_unit_clauses(cnf, current_variables)  # Check for unit clauses
 
     satisfiable = check_satisfiable(cnf)
-    #print(satisfiable)
 
     # If this returns either True or False return that value back and either stop or try False. Else try next literal T
     if satisfiable != "UNFIN":
@@ -140,16 +134,34 @@ def dpll(cnf, variables):
     #First try True
     current_variables[position] = True
     new_cnf = remove_redundant(cnf, position)
-    satisfiable, variables = dpll(new_cnf, variables)
+    satisfiable, variables = dpll(new_cnf, current_variables)
     if satisfiable == True:
-        print("Trying True on: " + str(position))
         return satisfiable, variables
 
     #Now try False, hence the negated position
     current_variables[position] = False
     new_cnf = remove_redundant(cnf, -position)
-    print("Trying false on: " + str(position))
-    return dpll(new_cnf, variables)
+    return dpll(new_cnf, current_variables)
+
+def print_sudkoku(variables):
+
+    values = []
+    for key in variables:
+        if variables[key] == True:
+            values.append(key)
+
+    values.sort()
+
+    i = 1
+    for position in values:
+        print(str(position%10) + " ", end=" ")
+        if i%3 ==0:
+            print("|", end= " ")
+        if i%9 ==0:
+            print("\n")
+        if i%27 == 0:
+            print("-------------------------------------")
+        i+=1
 
 
 
@@ -160,4 +172,10 @@ if __name__ == '__main__':
     cnf, variables = initialize_sudoku(cnf, variables, sudoku)
     satisfiable, current_variables = dpll(cnf,variables)
     print("SAT: " + str(satisfiable))
-    print(current_variables)
+    print_sudkoku(current_variables)
+
+
+
+
+
+
