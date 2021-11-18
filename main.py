@@ -1,4 +1,6 @@
 from copy import deepcopy
+from statistics import mode
+import time
 
 PATH_TO_CONSTRAINTS = 'sudoku-rules.txt'
 PATH_TO_SUDOKU = 'sudoku-example.txt'
@@ -109,6 +111,161 @@ def check_satisfiable(cnf):
         return 'UNFIN' #Else the cnf can still be satisfied with remaining clauses
 
 
+def jeroslow_wang(cnf, variables):
+    '''
+    Uses the Jeroslow-Wang method (one-sided) to pick the next literal that has the lowest J(l) value.
+    '''
+
+    # save all literal scores in a dict
+    J = {}
+
+    # loop over each clause
+    for clause in cnf:
+
+        # look at each literal within the clause
+        for literal in clause:
+
+            # find literal that is not negated and has a None-value
+            if literal > 0 and literal in variables and variables[literal] == None:
+
+                # get the J-value of that literal
+                J_literal = 2 ** -(abs(len(clause))) # TODO: waarom absoluut-strepen in formule, lengte is nooit <0?
+
+                # save in dictionary
+                if literal not in J:
+                    J[literal] = J_literal
+
+                else:
+                    J[literal] += J_literal
+
+    # choose literal with lowest J value
+    min_literal = min(J, key=J.get)
+    return min_literal
+
+def dlcs(cnf, variables):
+
+    current_variables = deepcopy(variables)  # Copy the variables, so previous don't get changed
+
+    cnf, current_variables = set_unit_clauses(cnf, current_variables)  # Check for unit clauses
+
+    satisfiable = check_satisfiable(cnf)
+    print(satisfiable)
+
+
+    # If this returns either True or False return that value back and either stop or try False. Else try next literal T
+    if satisfiable != "UNFIN":
+        return satisfiable, current_variables
+
+    cnf_list = []
+    positive = 0
+    negative = 0
+
+    for row in cnf:
+        for element in row:
+            cnf_list.append(element)
+
+    absolute_list = []
+
+    for element in cnf_list:
+        absolute_list.append(abs(element))
+
+    most_frequent = mode(absolute_list)
+    print(most_frequent)
+
+    for element in cnf_list:
+        if element == most_frequent:
+            positive +=1
+        elif element == -most_frequent:
+            negative +=1
+
+
+    if positive > negative:
+        current_variables[most_frequent] =True
+        print("Trying true on " + str(most_frequent) + " pos > neg")
+    else:
+        current_variables[most_frequent] = False
+        print("Trying False on " + str(most_frequent) + " pos < neg")
+    new_cnf = remove_redundant(cnf, most_frequent)
+    satisfiable, variables = dlcs(new_cnf, current_variables)
+    if satisfiable == True:
+        return satisfiable, variables
+
+    #Now try False
+    if positive > negative:
+        current_variables[most_frequent] = False
+        print("Trying False on " + str(most_frequent) + " pos > neg")
+    else:
+        current_variables[most_frequent] = True
+        print("Trying true on " + str(most_frequent) + "  pos < neg")
+    new_cnf = remove_redundant(cnf, most_frequent)
+    return dlcs(new_cnf, current_variables)
+
+
+def test_dlcs(cnf, current_variables):
+
+    current_variables = deepcopy(variables)  # Copy the variables, so previous don't get changed
+
+    cnf, current_variables = set_unit_clauses(cnf, current_variables)  # Check for unit clauses
+
+
+
+    satisfiable = check_satisfiable(cnf)
+
+    # If this returns either True or False return that value back and either stop or try False. Else try next literal T
+    if satisfiable != "UNFIN":
+        return satisfiable, current_variables
+
+
+    cnf_list = []
+    positive = 0
+    negative = 0
+
+    for row in cnf:
+        for element in row:
+            cnf_list.append(element)
+
+    absolute_list = []
+
+    for element in cnf_list:
+        absolute_list.append(abs(element))
+
+    most_frequent = mode(absolute_list)
+
+    for element in cnf_list:
+        if element == most_frequent:
+            positive +=1
+        elif element == -most_frequent:
+            negative +=1
+
+    if positive > negative:
+
+        current_variables[most_frequent] = True
+        new_cnf = remove_redundant(cnf, most_frequent)
+        satisfiable, current_variables = test_dlcs(new_cnf, current_variables)
+        if satisfiable == True:
+            return satisfiable, current_variables
+
+        current_variables[most_frequent] = False
+        new_cnf = remove_redundant(cnf, -most_frequent)
+        return test_dlcs(new_cnf, current_variables)
+
+
+    else:
+
+        current_variables[most_frequent] = False
+        new_cnf = remove_redundant(cnf, -most_frequent)
+        satisfiable, current_variables = test_dlcs(new_cnf, current_variables)
+        if satisfiable == True:
+            return satisfiable, current_variables
+
+        current_variables[most_frequent] = True
+        new_cnf = remove_redundant(cnf, most_frequent)
+        return test_dlcs(new_cnf, current_variables)
+
+
+
+
+
 def dpll(cnf, variables):
 
     current_variables = deepcopy(variables)  # Copy the variables, so previous don't get changed
@@ -121,7 +278,6 @@ def dpll(cnf, variables):
     if satisfiable != "UNFIN":
         return satisfiable, current_variables
 
-
     # Pick the first variable which is not set
     # Code from: https://www.geeksforgeeks.org/python-get-key-from-value-in-dictionary/
     key_list = list(current_variables.keys()) #Get all the keys
@@ -129,6 +285,9 @@ def dpll(cnf, variables):
     index = val_list.index(None) #Get the index of the first unset variable
     position = key_list[index]
     print(position)
+
+
+    #position = jeroslow_wang(cnf, variables)
 
 
     #First try True
@@ -166,13 +325,19 @@ def print_sudkoku(variables):
 
 
 if __name__ == '__main__':
+    t0 = time.time()
     cnf = read_constraints(PATH_TO_CONSTRAINTS)
     sudoku = read_sudoku(PATH_TO_SUDOKU)
     variables = create_dict(cnf)
     cnf, variables = initialize_sudoku(cnf, variables, sudoku)
     satisfiable, current_variables = dpll(cnf,variables)
+    #satisfiable, current_variables = dlcs(cnf, variables)
+    #satisfiable, current_variables = test_dlcs(cnf, variables)
+
     print("SAT: " + str(satisfiable))
     print_sudkoku(current_variables)
+    t1 = time.time()
+    print(("Total time: " + str(t1-t0)))
 
 
 
