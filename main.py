@@ -1,6 +1,7 @@
 from copy import deepcopy
 from statistics import mode
 import time
+import os
 
 PATH_TO_CONSTRAINTS = 'sudoku-rules.txt'
 PATH_TO_SUDOKU = 'sudoku-example.txt'
@@ -322,9 +323,26 @@ def print_sudkoku(variables):
             print("-------------------------------------")
         i+=1
 
+def create_output(variables, path):
+
+    values = []
+
+    for key in variables: #Get all the 'filled in' positions
+        if variables[key] == True:
+            values.append(key)
+
+    head, tail = os.path.split(path)
+    tail = tail.split('.')[0] #The first element is the name, the second element is the extension
+
+    with open(tail+ '.out.txt', 'w') as f:
+        for key in values:
+            f.write(str(key) + ' 0\n')
+
+    f.close()
 
 
 if __name__ == '__main__':
+    create_output()
     t0 = time.time()
     cnf = read_constraints(PATH_TO_CONSTRAINTS)
     sudoku = read_sudoku(PATH_TO_SUDOKU)
