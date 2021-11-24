@@ -1,7 +1,9 @@
 from copy import deepcopy
 from statistics import mode
 from heuristic_utils import remove_redundant, set_unit_clauses, check_satisfiable
+import numpy as np
 
+num_evaluations = 0
 
 def dlcs(cnf, variables):
 
@@ -95,11 +97,14 @@ def jeroslow_wang(cnf, variables):
 
 
 def dpll(cnf, variables, algo):
+    global num_evaluations
 
     current_variables = deepcopy(variables)  # Copy the variables, so previous don't get changed
 
     cnf, current_variables = set_unit_clauses(cnf, current_variables)  # Check for unit clauses
+    mrv(current_variables)
 
+    num_evaluations += 1
     satisfiable = check_satisfiable(cnf)
 
     # If this returns either True or False return that value back and either stop or try False. Else try next literal T
@@ -129,3 +134,34 @@ def dpll(cnf, variables, algo):
     current_variables[position] = False
     new_cnf = remove_redundant(cnf, -position)
     return dpll(new_cnf, current_variables, algo)
+
+def mrv(variables):
+
+
+    #sudoku = list(map(str, sudoku)) #Convert to string so individual positions can be accessed
+
+    true_values = [str(k) for k,v in variables.items() if v == True]
+    none_values = [k for k, v in variables.items() if v == None]
+
+    row_list = []
+    row_counts = []
+
+    for position in true_values: #Get all the rows and the columns
+        row_list.append(int(position[0]))
+
+    for i in range(1, 10):
+        row_counts.append(-1*row_list.count(i)) # times -1 so that argsort takes place in descending order
+
+    indexes = np.argsort(row_counts)
+    print(indexes)
+
+    for row in indexes:
+        if row_counts[row] == 9: #If row is already filled in, skip it
+            continue
+        #else: # Get all the columns that are already filled in
+
+
+
+        row = row+1 #Indexes start from zero, rows start from 1
+        potential_values = [k for k in none_values if k >row*100 and k < (row+1)*100]
+        #print(potential_values)

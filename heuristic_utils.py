@@ -23,7 +23,7 @@ def count_pairs(sudoku):
         if col_count > 1:
             pairs += col_count
 
-    print("Number of pairs: " + str(pairs))
+    return pairs
 
 
 
