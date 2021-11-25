@@ -124,7 +124,10 @@ class Algorithms:
             position = key_list[index]
 
         elif algo == '-S2':
-            position = self.jeroslow_wang(cnf, variables)
+            position = self.jeroslow_wang(cnf, current_variables)
+
+        elif algo == '-S3':
+            position = self.mrv(current_variables)
 
 
         #First try True
@@ -149,22 +152,27 @@ class Algorithms:
         row_list = []
         row_counts = []
 
-        for position in true_values: #Get all the rows and the columns
-            row_list.append(int(position[0]))
-
-        for i in range(1, 10):
-            row_counts.append(-1*row_list.count(i)) # times -1 so that argsort takes place in descending order
-
-        indexes = np.argsort(row_counts)
-        print(indexes)
-
-        for row in indexes:
-            if row_counts[row] == 9: #If row is already filled in, skip it
-                continue
-            #else: # Get all the columns that are already filled in
+        col_list = []
+        col_counts = []
 
 
+        for position in true_values: #loop through all the rows and the columns that are filled in
+            row_list.append(int(position[0])) #Take the row variable
+            col_list.append(int(position[1])) #Take the column variable
 
-            row = row+1 #Indexes start from zero, rows start from 1
-            potential_values = [k for k in none_values if k >row*100 and k < (row+1)*100]
-            #print(potential_values)
+        for i in range(1, 10): #Loop through row 1 to 9
+            row_counts.append(row_list.count(i)) # times -1 so that argsort takes place in descending order
+            col_counts.append(col_list.count(i))
+
+        scores = dict() #Create dictionary and set the values to how many positions are filled on row and column
+
+        for key in none_values:
+            row = str(key)[0]
+            col = str(key)[1]
+            score = row_counts[int(row)-1] + col_counts[int(col)-1]
+            scores[key] = score
+
+
+        max_literal = max(scores, key=scores.get)
+
+        return max_literal

@@ -1,10 +1,11 @@
 import time
 import os
 import sys
-from cnf_utils import read_constraints, create_dict
-from sudoku_utils import read_sudoku, initialize_sudoku, print_sudkoku, convert_to_dimacs
+from cnf_utils import read_constraints, create_dict, read_dimacs, create_output
+from sudoku_utils import initialize_sudoku, print_sudkoku, convert_to_dimacs
 from heuristic_utils import count_pairs
 from experiment import run_experiment
+from algorithms import Algorithms
 
 
 PATH_TO_CONSTRAINTS = 'sudoku-rules.txt'
@@ -14,8 +15,7 @@ PATH_TO_SUDOKU = 'sudoku-example.txt'
 if __name__ == '__main__':
 
     #Run experiment only takes ... format!
-    run_experiment('Sudoku/top91.sdk.txt', '-S2')
-
+    run_experiment('Sudoku/top2365.sdk.txt', '-S3')
 
     '''
     TODO: Add here code to test with file (rules+sudoku)

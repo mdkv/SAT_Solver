@@ -1,5 +1,21 @@
 import os
 
+def read_dimacs(path):
+
+    given_dimacs = []
+    lines = open(path).readlines()
+    for line in lines:
+
+        if line.startswith("c") or line.startswith("p"): #Skip if it is a comment or info
+            continue
+        position = line.split(" ") #Split on whitespace
+        position.pop() # Remove last element
+
+        position = list(map(int, position)) #Convert to integers
+        given_dimacs.append(position[0])
+
+    return given_dimacs
+
 def read_constraints(path):
 
     constraints = []
@@ -37,15 +53,11 @@ def create_output(variables, path, satisfiable):
     tail = tail.split('.')[0] #The first element is the name, the second element is the extension
 
     if satisfiable == True:
-        values = []
-
-        for key in variables: #Get all the 'filled in' positions
-            if variables[key] == True:
-                values.append(key)
-
 
         with open(tail+ '.out.txt', 'w') as f:
-            for key in values:
+            for key, value in variables.items():
+                if value == False:
+                    key = -key #If the value is set to false, negate the key
                 f.write(str(key) + ' 0\n')
 
     else: #If the cnf can't be satisfied than create an empty file

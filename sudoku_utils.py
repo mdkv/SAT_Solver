@@ -1,21 +1,5 @@
 from heuristic_utils import remove_redundant
 
-def read_sudoku(path):
-
-    given_sudoku = []
-    lines = open(path).readlines()
-    for line in lines:
-
-        if line.startswith("c") or line.startswith("p"): #Skip if it is a comment or info
-            continue
-        position = line.split(" ") #Split on whitespace
-        position.pop() # Remove last element
-
-        position = list(map(int, position)) #Convert to integers
-        given_sudoku.append(position[0])
-
-    return given_sudoku
-
 
 def initialize_sudoku(cnf, variables, sudoku):
 
