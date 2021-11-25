@@ -26,7 +26,6 @@ def count_pairs(sudoku):
     return pairs
 
 
-
 def check_satisfiable(cnf):
 
     if len(cnf) == 0: #All the clauses are removed, thus it is satisfied
@@ -38,6 +37,7 @@ def check_satisfiable(cnf):
                 return False
 
         return 'UNFIN' #Else the cnf can still be satisfied with remaining clauses
+
 
 def remove_redundant(cnf, literal):
 
@@ -56,7 +56,6 @@ def remove_redundant(cnf, literal):
             i +=1
 
     return new_cnf
-
 
 
 def set_unit_clauses(cnf, variables):
