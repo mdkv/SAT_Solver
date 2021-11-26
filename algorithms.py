@@ -1,7 +1,6 @@
 from copy import deepcopy
 from statistics import mode
 from heuristic_utils import remove_redundant, set_unit_clauses, check_satisfiable
-import numpy as np
 
 class Algorithms:
 
@@ -86,7 +85,7 @@ class Algorithms:
                 if literal > 0 and literal in variables and variables[literal] == None:
 
                     # get the J-value of that literal
-                    J_literal = 2 ** -(abs(len(clause))) # TODO: waarom absoluut-strepen in formule, lengte is nooit <0?
+                    J_literal = 2 ** -(abs(len(clause)))
 
                     # save in dictionary
                     if literal not in J:

@@ -20,12 +20,8 @@ def run_experiment(path, strategy):
     sudokus = convert_to_dimacs(path)
 
     with open(tail+'_logs_'+ strategy + '.txt', 'w') as f:
-    #with open('removethis.txt', 'w') as f:
 
         for sudoku in sudokus:
-
-            if num_sudoku > 1000:
-                break
 
             print("Trying to solve sudoku: {}".format(num_sudoku))
             num_pairs = count_pairs(sudoku)
