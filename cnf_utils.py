@@ -84,7 +84,7 @@ def create_output(variables, path, satisfiable):
                 f.write(str(key) + ' 0\n')
 
     else: #If the cnf can't be satisfied than create an empty file
-        with open(tail + '.out.txt', 'w') as f:
-            f.write()
+        with open(tail + '.out', 'w') as f:
+            f.write('')
 
     f.close()
