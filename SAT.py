@@ -5,10 +5,6 @@ from experiment import run_experiment
 from algorithms import Algorithms
 
 
-PATH_TO_CONSTRAINTS = 'sudoku-rules.txt'
-PATH_TO_SUDOKU = 'sudoku-example.txt'
-
-
 if __name__ == '__main__':
 
     args = sys.argv  # arg[0] = scriptname, arg[1]= = -S algo number, arg[2] = sudoku name

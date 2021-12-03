@@ -1,3 +1,5 @@
 venv/
 __pycache__
 own_Experiments/
+test.out
+test.txt
